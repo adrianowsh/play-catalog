@@ -10,9 +10,10 @@ namespace Play.Catalog.Service.Controllers;
 [Route("api/items")]
 public class ItemsController : ControllerBase
 {
-    private readonly ItemsRepository _itemsRepository = new();
-    public ItemsController()
+    private readonly IItemsRepository _itemsRepository;
+    public ItemsController(IItemsRepository itemsRepository)
     {
+        _itemsRepository = itemsRepository;
     }
 
     [HttpGet]
@@ -61,7 +62,7 @@ public class ItemsController : ControllerBase
     {
         var existingItem = await _itemsRepository.GetAsync(id);
         if (existingItem is null) return NotFound();
-        await _itemsRepository.DeleteAsync(id);
+        await _itemsRepository.RemoveAsync(id);
         return NoContent();
     }
 }

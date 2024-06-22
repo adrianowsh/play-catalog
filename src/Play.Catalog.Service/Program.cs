@@ -5,7 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddMongodbSettings();
+builder.Services.AddMongodbSettings(builder.Configuration);
+builder.Services.AddRepositories();
 
 var app = builder.Build();
 
