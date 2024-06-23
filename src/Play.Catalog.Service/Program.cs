@@ -1,4 +1,5 @@
 using Play.Catalog.Service;
+using Play.Common.MongoDb;
 
 var builder = WebApplication.CreateBuilder(args);
 
