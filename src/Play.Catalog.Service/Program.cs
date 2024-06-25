@@ -8,6 +8,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMongodbSettings(builder.Configuration);
 builder.Services.AddRepositories();
+builder.Services.AddMassTransitRabbitMq(builder.Configuration);
 
 var app = builder.Build();
 

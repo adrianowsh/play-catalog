@@ -1,4 +1,6 @@
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Play.Catalog.Contracts;
 using Play.Catalog.Service.Dtos;
 using Play.Catalog.Service.Emtties;
 using Play.Common;
@@ -10,21 +12,23 @@ namespace Play.Catalog.Service.Controllers;
 public class ItemsController : ControllerBase
 {
     private readonly IRepository<Item> _itemsRepository;
-    public ItemsController(IRepository<Item> itemsRepository)
+    private readonly IPublishEndpoint _publishEndpoint;
+    public ItemsController(IRepository<Item> itemsRepository, IPublishEndpoint publishEndpoint)
     {
         _itemsRepository = itemsRepository;
+        _publishEndpoint = publishEndpoint;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> GetAsync()
     {
         var items = (await _itemsRepository.GetAllAsync())
-                .Select(item => item.AsDto());
+            .Select(item => item.AsDto());
         return Ok(items);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var item = await _itemsRepository.GetAsync(id);
         if (item is null) return NotFound();
@@ -32,7 +36,7 @@ public class ItemsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post(CreateItemDto createItemDto)
+    public async Task<IActionResult> PostAsync(CreateItemDto createItemDto)
     {
         var item = Item.NewItem(
             createItemDto.Name,
@@ -41,11 +45,18 @@ public class ItemsController : ControllerBase
             DateTimeOffset.UtcNow
         );
         await _itemsRepository.CreateAsync(item);
-        return CreatedAtAction(nameof(GetById), new { Id = item.Id }, item);
+
+        var message = new CatalogItemCreated(
+            item.Id,
+            item.Name,
+            item.Description
+        );
+        await _publishEndpoint.Publish(message);
+        return CreatedAtAction(nameof(GetByIdAsync), new { Id = item.Id }, item);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(Guid id, UpdatetemDto updatetemDto)
+    public async Task<IActionResult> PutAsync(Guid id, UpdatetemDto updatetemDto)
     {
         var existingItem = await _itemsRepository.GetAsync(id);
         if (existingItem is null) return NotFound();
@@ -53,15 +64,24 @@ public class ItemsController : ControllerBase
         existingItem.SetDescription(updatetemDto.Description);
         existingItem.SetPrice(updatetemDto.Price);
         await _itemsRepository.UpdateAsync(existingItem);
+
+        var message = new CatalogItemUpdated(
+            existingItem.Id,
+            existingItem.Name,
+            existingItem.Description
+        );
+        await _publishEndpoint.Publish(message);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         var existingItem = await _itemsRepository.GetAsync(id);
         if (existingItem is null) return NotFound();
         await _itemsRepository.RemoveAsync(id);
+        var message = new CatalogItemDeleted(existingItem.Id);
+        await _publishEndpoint.Publish(message);
         return NoContent();
     }
 }
