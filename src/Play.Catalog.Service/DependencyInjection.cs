@@ -19,20 +19,4 @@ public static class DependencyInjection
         });
         return services;
     }
-
-    public static IServiceCollection AddMassTransitRabbitMq(this IServiceCollection services, IConfiguration configuration)
-    {
-        var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
-        services.AddMassTransit(opt =>
-        {
-            opt.UsingRabbitMq((context, configurator) =>
-            {
-                var rabbitMqSettings = configuration.GetSection(nameof(RabbitMqSettings)).Get<RabbitMqSettings>();
-                configurator.Host(rabbitMqSettings.Host);
-                configurator.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter(serviceSettings.ServiceName, false));
-            });
-        });
-
-        return services;
-    }
 }
