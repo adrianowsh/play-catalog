@@ -20,7 +20,7 @@ public class ItemsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> Get()
     {
         var items = (await _itemsRepository.GetAllAsync())
             .Select(item => item.AsDto());
@@ -28,7 +28,7 @@ public class ItemsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         var item = await _itemsRepository.GetAsync(id);
         if (item is null) return NotFound();
@@ -36,7 +36,7 @@ public class ItemsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync(CreateItemDto createItemDto)
+    public async Task<IActionResult> Post(CreateItemDto createItemDto)
     {
         var item = Item.NewItem(
             createItemDto.Name,
@@ -52,11 +52,11 @@ public class ItemsController : ControllerBase
             item.Description
         );
         await _publishEndpoint.Publish(message);
-        return CreatedAtAction(nameof(GetByIdAsync), new { Id = item.Id }, item);
+        return CreatedAtAction(nameof(GetById), new { Id = item.Id }, item);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutAsync(Guid id, UpdatetemDto updatetemDto)
+    public async Task<IActionResult> Put(Guid id, UpdatetemDto updatetemDto)
     {
         var existingItem = await _itemsRepository.GetAsync(id);
         if (existingItem is null) return NotFound();
@@ -75,7 +75,7 @@ public class ItemsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         var existingItem = await _itemsRepository.GetAsync(id);
         if (existingItem is null) return NotFound();
