@@ -15,7 +15,7 @@ public static class DependencyInjection
         services.AddSingleton<IRepository<Item>>(static serviceProvider =>
         {
             var database = serviceProvider.GetService<IMongoDatabase>();
-            return new MongoRepository<Item>(database);
+            return new MongoRepository<Item>(database, $"{nameof(Item)}s");
         });
         return services;
     }
