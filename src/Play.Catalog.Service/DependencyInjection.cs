@@ -19,4 +19,15 @@ public static class DependencyInjection
         });
         return services;
     }
+
+    public static IApplicationBuilder ConfigureCors(this IApplicationBuilder app, IConfiguration configuration)
+    {
+        app.UseCors(builder =>
+        {
+            builder.WithOrigins(configuration["AllowedOrigin"])
+                     .AllowAnyHeader()
+                     .AllowAnyMethod();
+        });
+        return app;
+    }
 }
