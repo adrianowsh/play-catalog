@@ -4,6 +4,8 @@ using Play.Common.MongoDb;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.ConfigureJwtBearerAuthentication(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -23,6 +25,7 @@ app.ConfigureCors(builder.Configuration);
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

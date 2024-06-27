@@ -1,4 +1,5 @@
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MongoDB.Driver;
 using Play.Catalog.Service.Emtties;
 using Play.Catalog.Service.Settings;
@@ -29,5 +30,18 @@ public static class DependencyInjection
                      .AllowAnyMethod();
         });
         return app;
+    }
+
+    public static IServiceCollection ConfigureJwtBearerAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                  .AddJwtBearer(options =>
+                  {
+                      options.Authority = "https://localhost:5003";
+                      options.Audience = serviceSettings.ServiceName;
+                  });
+
+        return services;
     }
 }
