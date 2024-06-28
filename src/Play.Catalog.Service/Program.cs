@@ -1,11 +1,10 @@
 using Play.Catalog.Service;
+using Play.Common.Identity;
 using Play.Common.MassTransitRabbitMq;
 using Play.Common.MongoDb;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-builder.Services.ConfigureJwtBearerAuthentication(builder.Configuration);
+builder.Services.AddJwtBearerAuthentication();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -22,12 +21,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.ConfigureCors(builder.Configuration);
-
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
